@@ -1,0 +1,942 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clipchamp Edge-TTS 批量配音工坊</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #edf4ef;
+      --panel: #fbfefb;
+      --panel-soft: #f3faf5;
+      --text: #1f2d27;
+      --muted: #66766e;
+      --line: #cfe0d4;
+      --accent: #2f6f55;
+      --accent-dark: #214f3e;
+      --accent-soft: #dff1e7;
+      --button: #edf5f0;
+      --button-hover: #e1eee7;
+      --ok: #e8f8ee;
+      --ok-border: #abd8bc;
+      --danger: #a6423a;
+      --shadow: 0 16px 34px rgba(32, 64, 45, 0.09);
+      font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #eef6f0 0%, #f8fbf8 48%, #eef4f7 100%);
+      color: var(--text);
+    }
+
+    button, input, textarea, select { font: inherit; }
+
+    button {
+      min-height: 38px;
+      padding: 0 14px;
+      border: 1px solid #c7dacd;
+      border-radius: 6px;
+      background: var(--button);
+      color: var(--text);
+      cursor: pointer;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.74) inset;
+      transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    button:hover:not(:disabled) {
+      background: var(--button-hover);
+      border-color: #a9c7b4;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(47, 111, 85, 0.12);
+    }
+
+    button:disabled { cursor: not-allowed; opacity: 0.55; transform: none; box-shadow: none; }
+
+    .primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .primary:hover:not(:disabled) { background: var(--accent-dark); border-color: var(--accent-dark); }
+    .danger { background: #fff3f1; border-color: #f1c8c1; color: var(--danger); }
+
+    .app {
+      display: grid;
+      grid-template-columns: minmax(290px, 360px) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      padding: 22px;
+      background: rgba(251, 254, 251, 0.94);
+      border-right: 1px solid var(--line);
+      box-shadow: 10px 0 28px rgba(32, 64, 45, 0.04);
+    }
+
+    .brand {
+      display: grid;
+      gap: 5px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand h1 {
+      margin: 0;
+      color: #173b2d;
+      font-size: 21px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .brand span { color: var(--muted); font-size: 13px; }
+    .field-group { display: grid; gap: 12px; }
+    .field { display: grid; gap: 7px; }
+
+    label {
+      color: #30463b;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fefffe;
+      color: var(--text);
+      outline: none;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.86) inset;
+    }
+
+    input, select { height: 40px; padding: 0 11px; }
+    textarea { min-height: 126px; resize: vertical; padding: 12px; line-height: 1.62; }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(47, 111, 85, 0.16);
+    }
+
+    .notice {
+      padding: 10px 12px;
+      border: 1px solid #ead49b;
+      border-radius: 6px;
+      background: #fff9e9;
+      color: #75520d;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .status-box {
+      display: grid;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    progress {
+      width: 100%;
+      height: 10px;
+      accent-color: var(--accent);
+    }
+
+    .main {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      padding: 22px;
+      gap: 16px;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      padding: 15px 16px;
+      background: rgba(251, 254, 251, 0.95);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .toolbar-title { display: grid; gap: 3px; min-width: 118px; }
+    .toolbar h2 { margin: 0; font-size: 18px; line-height: 1.25; letter-spacing: 0; }
+    .toolbar-count { color: var(--muted); font-size: 13px; }
+    .toolbar-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
+    .button-row, .download-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+    .download-choice {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      min-height: 38px;
+      padding: 3px;
+      border: 1px solid #c7dacd;
+      border-radius: 6px;
+      background: #f7fbf8;
+    }
+
+    .download-choice-label {
+      padding: 0 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .download-choice label { position: relative; display: inline-flex; margin: 0; }
+    .download-choice input { position: absolute; opacity: 0; pointer-events: none; }
+
+    .download-choice span:not(.download-choice-label) {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 48px;
+      min-height: 30px;
+      padding: 0 10px;
+      border-radius: 5px;
+      color: #30463b;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.16s ease, color 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .download-choice input:checked + span {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 5px 12px rgba(47, 111, 85, 0.18);
+    }
+
+    .download-choice input:disabled + span { cursor: not-allowed; opacity: 0.55; }
+    .cards { display: grid; gap: 12px; }
+
+    .card {
+      overflow: hidden;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 8px 22px rgba(32, 64, 45, 0.06);
+    }
+
+    .card-head, .card-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      background: var(--panel-soft);
+    }
+
+    .card-foot { flex-wrap: wrap; justify-content: flex-end; }
+    .card-head { border-bottom: 1px solid var(--line); }
+    .card-foot { border-top: 1px solid var(--line); }
+
+    .card-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 42px;
+      height: 28px;
+      border-radius: 6px;
+      background: var(--accent-soft);
+      color: #235541;
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .card-status {
+      color: var(--muted);
+      font-size: 13px;
+      overflow-wrap: anywhere;
+      text-align: right;
+    }
+
+    .card textarea { border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+    .card textarea:focus { box-shadow: inset 0 0 0 2px rgba(47, 111, 85, 0.18); }
+
+    @media (max-width: 860px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { border-right: 0; border-bottom: 1px solid var(--line); }
+      .toolbar { align-items: stretch; flex-direction: column; }
+      .toolbar-actions { justify-content: flex-start; }
+      .button-row, .download-row { width: 100%; }
+      .download-row button { flex: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <h1>Clipchamp Edge-TTS 批量配音工坊</h1>
+        <span>本地 EXE 版：自动保存到电脑目录</span>
+      </div>
+
+      <div class="field-group">
+        <div class="field">
+          <label for="basePath">主输出路径</label>
+          <input id="basePath" type="text" spellcheck="false">
+        </div>
+        <div class="field">
+          <label for="subFolder">子任务夹</label>
+          <input id="subFolder" type="text" spellcheck="false">
+        </div>
+        <button id="openFolderBtn" type="button">打开输出目录</button>
+      </div>
+
+      <div class="field-group">
+        <div class="field">
+          <label for="language">语言</label>
+          <select id="language"></select>
+        </div>
+        <div class="field">
+          <label for="voice">语音</label>
+          <select id="voice"></select>
+        </div>
+        <div class="field">
+          <label for="rate">速度</label>
+          <select id="rate">
+            <option value="-30%">-30%</option>
+            <option value="-20%">-20%</option>
+            <option value="-10%">-10%</option>
+            <option value="+0%">标准</option>
+            <option value="+10%">+10%</option>
+            <option value="+20%">+20%</option>
+            <option value="+30%">+30%</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="pitch">音调</label>
+          <select id="pitch">
+            <option value="-20Hz">-20Hz</option>
+            <option value="-10Hz">-10Hz</option>
+            <option value="+0Hz">标准</option>
+            <option value="+10Hz">+10Hz</option>
+            <option value="+20Hz">+20Hz</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="notice">默认英文语音。生成时会调用 Microsoft Edge-TTS 在线服务，音频直接保存到你设置的本地目录。</div>
+
+      <div class="status-box">
+        <div id="globalStatus" aria-live="polite"></div>
+        <progress id="progress" value="0" max="1"></progress>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="toolbar">
+        <div class="toolbar-title">
+          <h2>文案列表</h2>
+          <div id="cardCount" class="toolbar-count">0 条</div>
+        </div>
+        <div class="toolbar-actions">
+          <div class="button-row">
+            <button id="addCardBtn" type="button">添加文案</button>
+            <button id="generateBtn" class="primary" type="button">批量生成</button>
+            <button id="previewAllBtn" type="button" disabled>试听全部</button>
+          </div>
+          <div class="download-row">
+            <div class="download-choice" role="radiogroup" aria-label="一键下载格式">
+              <span class="download-choice-label">一键下载</span>
+              <label><input type="radio" name="zipFormat" value="mp3" checked><span>MP3</span></label>
+              <label><input type="radio" name="zipFormat" value="mp4"><span>MP4</span></label>
+              <label><input type="radio" name="zipFormat" value="both"><span>全部</span></label>
+            </div>
+            <button id="downloadZipBtn" type="button" disabled>打包 MP3 ZIP</button>
+          </div>
+        </div>
+      </div>
+      <section id="cards" class="cards" aria-live="polite"></section>
+    </main>
+  </div>
+
+  <script>
+    const storageKeys = {
+      basePath: "tts_base_path",
+      subFolder: "tts_sub_folder",
+      language: "tts_language",
+      voice: "tts_voice",
+      rate: "tts_rate",
+      pitch: "tts_pitch",
+      zipFormat: "tts_zip_format"
+    };
+
+    const basePathInput = document.querySelector("#basePath");
+    const subFolderInput = document.querySelector("#subFolder");
+    const languageInput = document.querySelector("#language");
+    const voiceInput = document.querySelector("#voice");
+    const rateInput = document.querySelector("#rate");
+    const pitchInput = document.querySelector("#pitch");
+    const openFolderBtn = document.querySelector("#openFolderBtn");
+    const addCardBtn = document.querySelector("#addCardBtn");
+    const generateBtn = document.querySelector("#generateBtn");
+    const previewAllBtn = document.querySelector("#previewAllBtn");
+    const downloadZipBtn = document.querySelector("#downloadZipBtn");
+    const zipFormatInputs = [...document.querySelectorAll("input[name=\"zipFormat\"]")];
+    const cardsEl = document.querySelector("#cards");
+    const cardCountEl = document.querySelector("#cardCount");
+    const globalStatusEl = document.querySelector("#globalStatus");
+    const progressEl = document.querySelector("#progress");
+
+    let currentAudio = null;
+    let currentAudioUrl = "";
+    let currentPreviewButton = null;
+    let previewRunId = 0;
+    let isGenerating = false;
+    let generatedFiles = [];
+    let voices = [];
+    let voicesByLocale = new Map();
+
+    function fallbackVoices() {
+      return [
+        { ShortName: "en-US-AvaMultilingualNeural", Locale: "en-US", DisplayName: "Ava Multilingual", LocalName: "Ava Multilingual", Gender: "Female" },
+        { ShortName: "en-US-EmmaMultilingualNeural", Locale: "en-US", DisplayName: "Emma Multilingual", LocalName: "Emma Multilingual", Gender: "Female" },
+        { ShortName: "en-US-AriaNeural", Locale: "en-US", DisplayName: "Aria", LocalName: "Aria", Gender: "Female" },
+        { ShortName: "en-US-GuyNeural", Locale: "en-US", DisplayName: "Guy", LocalName: "Guy", Gender: "Male" },
+        { ShortName: "en-GB-SoniaNeural", Locale: "en-GB", DisplayName: "Sonia", LocalName: "Sonia", Gender: "Female" },
+        { ShortName: "it-IT-ElsaNeural", Locale: "it-IT", DisplayName: "Elsa", LocalName: "Elsa", Gender: "Female" },
+        { ShortName: "it-IT-DiegoNeural", Locale: "it-IT", DisplayName: "Diego", LocalName: "Diego", Gender: "Male" },
+        { ShortName: "zh-CN-XiaoxiaoNeural", Locale: "zh-CN", DisplayName: "Xiaoxiao", LocalName: "晓晓", Gender: "Female" },
+        { ShortName: "zh-CN-YunjianNeural", Locale: "zh-CN", DisplayName: "Yunjian", LocalName: "云健", Gender: "Male" }
+      ];
+    }
+
+    function loadSettings() {
+      basePathInput.value = localStorage.getItem(storageKeys.basePath) || "D:/TTS_Output";
+      subFolderInput.value = localStorage.getItem(storageKeys.subFolder) || "第一期";
+      rateInput.value = localStorage.getItem(storageKeys.rate) || "+0%";
+      pitchInput.value = localStorage.getItem(storageKeys.pitch) || "+0Hz";
+      const savedZipFormat = localStorage.getItem(storageKeys.zipFormat) || "mp3";
+      const savedZipInput = zipFormatInputs.find((input) => input.value === savedZipFormat) || zipFormatInputs[0];
+      if (savedZipInput) savedZipInput.checked = true;
+      updateZipButtonText();
+    }
+
+    function bindSettingPersistence() {
+      for (const [el, key] of [
+        [basePathInput, storageKeys.basePath],
+        [subFolderInput, storageKeys.subFolder],
+        [languageInput, storageKeys.language],
+        [voiceInput, storageKeys.voice],
+        [rateInput, storageKeys.rate],
+        [pitchInput, storageKeys.pitch]
+      ]) {
+        el.addEventListener("input", () => localStorage.setItem(key, el.value));
+      }
+      for (const input of zipFormatInputs) {
+        input.addEventListener("change", () => {
+          if (input.checked) localStorage.setItem(storageKeys.zipFormat, input.value);
+          refreshBatchButtons();
+        });
+      }
+    }
+
+    function setGlobalStatus(message) { globalStatusEl.textContent = message || ""; }
+    function setCardStatus(card, message) { card.querySelector(".card-status").textContent = message || ""; }
+
+    function localeLabel(locale) {
+      const [language, region] = locale.split("-");
+      try {
+        const languageName = new Intl.DisplayNames(["zh-CN"], { type: "language" }).of(language) || language;
+        const regionName = region ? new Intl.DisplayNames(["zh-CN"], { type: "region" }).of(region) : "";
+        return regionName ? `${languageName} - ${regionName} (${locale})` : `${languageName} (${locale})`;
+      } catch (error) {
+        return locale;
+      }
+    }
+
+    function voiceLabel(voice) {
+      const name = voice.LocalName || voice.DisplayName || voice.FriendlyName || voice.ShortName;
+      const gender = voice.Gender ? ` · ${voice.Gender}` : "";
+      return `${name}${gender} · ${voice.ShortName}`;
+    }
+
+    function buildVoiceGroups(allVoices) {
+      voices = allVoices.filter((voice) => voice.ShortName && voice.Locale).sort((a, b) => voiceLabel(a).localeCompare(voiceLabel(b), "zh-CN"));
+      voicesByLocale = new Map();
+      for (const voice of voices) {
+        if (!voicesByLocale.has(voice.Locale)) voicesByLocale.set(voice.Locale, []);
+        voicesByLocale.get(voice.Locale).push(voice);
+      }
+    }
+
+    function populateLanguages() {
+      const locales = [...voicesByLocale.keys()].sort((a, b) => localeLabel(a).localeCompare(localeLabel(b), "zh-CN"));
+      languageInput.replaceChildren();
+      for (const locale of locales) {
+        const option = document.createElement("option");
+        option.value = locale;
+        option.textContent = localeLabel(locale);
+        languageInput.append(option);
+      }
+      const savedLanguage = localStorage.getItem(storageKeys.language);
+      const initialLanguage = locales.includes(savedLanguage) ? savedLanguage : (locales.includes("en-US") ? "en-US" : locales[0]);
+      languageInput.value = initialLanguage;
+      localStorage.setItem(storageKeys.language, initialLanguage);
+    }
+
+    function preferredEnglishVoice(localeVoices) {
+      const preferred = ["en-US-AvaMultilingualNeural", "en-US-EmmaMultilingualNeural", "en-US-AriaNeural", "en-US-JennyNeural", "en-US-GuyNeural"];
+      for (const shortName of preferred) {
+        const found = localeVoices.find((voice) => voice.ShortName === shortName);
+        if (found) return found.ShortName;
+      }
+      return localeVoices[0]?.ShortName || "";
+    }
+
+    function populateVoices() {
+      const localeVoices = voicesByLocale.get(languageInput.value) || [];
+      voiceInput.replaceChildren();
+      for (const voice of localeVoices) {
+        const option = document.createElement("option");
+        option.value = voice.ShortName;
+        option.textContent = voiceLabel(voice);
+        voiceInput.append(option);
+      }
+      const savedVoice = localStorage.getItem(storageKeys.voice);
+      const savedVoiceIsInLanguage = localeVoices.some((voice) => voice.ShortName === savedVoice);
+      if (savedVoiceIsInLanguage) voiceInput.value = savedVoice;
+      else if (languageInput.value === "en-US") voiceInput.value = preferredEnglishVoice(localeVoices);
+      else voiceInput.value = localeVoices[0]?.ShortName || "";
+      localStorage.setItem(storageKeys.voice, voiceInput.value);
+    }
+
+    async function loadVoices() {
+      languageInput.disabled = true;
+      voiceInput.disabled = true;
+      setGlobalStatus("正在加载完整语音列表");
+      try {
+        const response = await fetch("/api/voices");
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        buildVoiceGroups(data.voices || []);
+        setGlobalStatus(data.status === "fallback" ? "在线语音列表加载失败，已使用备用列表" : `已加载 ${voices.length} 个语音，默认英文`);
+      } catch (error) {
+        buildVoiceGroups(fallbackVoices());
+        setGlobalStatus(`语音列表加载失败，已使用备用列表：${error.message}`);
+      }
+      populateLanguages();
+      populateVoices();
+      languageInput.disabled = false;
+      voiceInput.disabled = false;
+    }
+
+    function normalizePathPart(value, trimSide) {
+      const normalized = value.trim().replace(/\\/g, "/");
+      if (trimSide === "end") return normalized.replace(/\/+$/g, "");
+      if (trimSide === "start") return normalized.replace(/^\/+/, "");
+      return normalized;
+    }
+
+    function getOutputPath() {
+      const base = normalizePathPart(basePathInput.value, "end");
+      const sub = normalizePathPart(subFolderInput.value, "start");
+      if (!base) return "";
+      return sub ? `${base}/${sub}` : base;
+    }
+
+    function requestOptions(body) {
+      return { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) };
+    }
+
+    async function postJson(path, body) {
+      const response = await fetch(path, requestOptions(body));
+      if (!response.ok) {
+        let message = await response.text();
+        try { message = JSON.parse(message).detail || message; } catch (error) {}
+        throw new Error(message || `HTTP ${response.status}`);
+      }
+      return response.json();
+    }
+
+    function resetPreviewButton(button) {
+      if (button) { button.disabled = false; button.textContent = "试听"; }
+    }
+
+    function stopCurrentAudio(invalidate = false) {
+      if (invalidate) previewRunId += 1;
+      if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; }
+      if (currentAudioUrl) { URL.revokeObjectURL(currentAudioUrl); currentAudioUrl = ""; }
+      currentAudio = null;
+      resetPreviewButton(currentPreviewButton);
+      currentPreviewButton = null;
+    }
+
+    function sanitizeFilename(text) {
+      const safeText = text.trim().slice(0, 12).replace(/[\\/:*?"<>|\r\n]/g, "_");
+      return safeText || "未命名";
+    }
+
+    function renumberCards() {
+      const cards = [...cardsEl.querySelectorAll(".card")];
+      cards.forEach((card, index) => card.querySelector(".card-number").textContent = `#${String(index + 1).padStart(2, "0")}`);
+      cardCountEl.textContent = `${cards.length} 条`;
+    }
+
+    function addCard(text = "") {
+      const card = document.createElement("article");
+      card.className = "card";
+      const head = document.createElement("div");
+      head.className = "card-head";
+      const number = document.createElement("span");
+      number.className = "card-number";
+      const status = document.createElement("span");
+      status.className = "card-status";
+      head.append(number, status);
+
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.placeholder = "输入文案，可从 Excel / Sheets 复制整列粘贴";
+      textarea.spellcheck = false;
+      textarea.addEventListener("paste", (event) => {
+        const clipboardText = event.clipboardData.getData("text/plain");
+        const lines = [];
+        for (const rawLine of clipboardText.replace(/\r\n/g, "\n").split("\n")) {
+          const line = rawLine.trim();
+          if (line) lines.push(line);
+        }
+        if (lines.length > 1) {
+          event.preventDefault();
+          textarea.value = lines[0];
+          for (const line of lines.slice(1)) addCard(line);
+        }
+      });
+
+      const foot = document.createElement("div");
+      foot.className = "card-foot";
+      const previewBtn = document.createElement("button");
+      previewBtn.type = "button";
+      previewBtn.textContent = "试听";
+      previewBtn.addEventListener("click", () => previewCard(card, textarea, previewBtn));
+      const playFullBtn = document.createElement("button");
+      playFullBtn.type = "button";
+      playFullBtn.className = "result-btn play-full-btn";
+      playFullBtn.textContent = "试听完整";
+      playFullBtn.disabled = true;
+      playFullBtn.addEventListener("click", () => playGeneratedCard(card, playFullBtn));
+
+      const downloadMp3Btn = document.createElement("button");
+      downloadMp3Btn.type = "button";
+      downloadMp3Btn.className = "result-btn download-mp3-btn";
+      downloadMp3Btn.textContent = "MP3";
+      downloadMp3Btn.disabled = true;
+      downloadMp3Btn.addEventListener("click", () => downloadGeneratedFile(card, "mp3"));
+
+      const downloadMp4Btn = document.createElement("button");
+      downloadMp4Btn.type = "button";
+      downloadMp4Btn.className = "result-btn download-mp4-btn";
+      downloadMp4Btn.textContent = "MP4";
+      downloadMp4Btn.disabled = true;
+      downloadMp4Btn.addEventListener("click", () => downloadGeneratedFile(card, "mp4"));
+
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.className = "danger";
+      removeBtn.textContent = "删除";
+      removeBtn.addEventListener("click", () => {
+        if (card.dataset.fileId) {
+          generatedFiles = generatedFiles.filter((file) => file.file_id !== card.dataset.fileId);
+          refreshBatchButtons();
+        }
+        card.remove();
+        if (!cardsEl.querySelector(".card")) addCard();
+        renumberCards();
+      });
+      foot.append(previewBtn, playFullBtn, downloadMp3Btn, downloadMp4Btn, removeBtn);
+      card.append(head, textarea, foot);
+      cardsEl.append(card);
+      renumberCards();
+      return card;
+    }
+
+    async function previewCard(card, textarea, button) {
+      const text = textarea.value.trim();
+      if (!text) { setCardStatus(card, "文案为空"); return; }
+      const runId = ++previewRunId;
+      stopCurrentAudio();
+      currentPreviewButton = button;
+      button.disabled = true;
+      button.textContent = "生成中";
+      setCardStatus(card, "试听生成中");
+      try {
+        const response = await fetch("/api/preview", requestOptions({ text: text.slice(0, 30), voice: voiceInput.value, rate: rateInput.value, pitch: pitchInput.value }));
+        if (!response.ok) {
+          let message = await response.text();
+          try { message = JSON.parse(message).detail || message; } catch (error) {}
+          throw new Error(message || `HTTP ${response.status}`);
+        }
+        if (runId !== previewRunId) { resetPreviewButton(button); return; }
+        const blob = await response.blob();
+        currentAudioUrl = URL.createObjectURL(blob);
+        currentAudio = new Audio(currentAudioUrl);
+        currentAudio.onended = () => { if (runId === previewRunId) { resetPreviewButton(button); currentPreviewButton = null; setCardStatus(card, "试听完成"); } };
+        currentAudio.onerror = () => { resetPreviewButton(button); currentPreviewButton = null; setCardStatus(card, "播放失败"); };
+        await currentAudio.play();
+        setCardStatus(card, "播放中");
+      } catch (error) {
+        resetPreviewButton(button);
+        currentPreviewButton = null;
+        setCardStatus(card, "试听失败");
+        setGlobalStatus(error.message);
+      }
+    }
+
+
+    function selectedZipFormats() {
+      const selected = zipFormatInputs.find((input) => input.checked)?.value || "mp3";
+      if (selected === "both") return ["mp3", "mp4"];
+      return [selected];
+    }
+
+    function zipFormatLabel() {
+      const formats = selectedZipFormats();
+      return formats.length > 1 ? "MP3+MP4" : formats[0].toUpperCase();
+    }
+
+    function zipFormatSuffix() {
+      return selectedZipFormats().map((format) => format.toUpperCase()).join("_");
+    }
+
+    function updateZipButtonText() {
+      downloadZipBtn.textContent = `打包 ${zipFormatLabel()} ZIP`;
+    }
+    function refreshBatchButtons() {
+      updateZipButtonText();
+      for (const input of zipFormatInputs) input.disabled = isGenerating;
+      const hasFiles = generatedFiles.length > 0;
+      previewAllBtn.disabled = !hasFiles || isGenerating;
+      downloadZipBtn.disabled = !hasFiles || isGenerating;
+    }
+
+    function setResultButtons(card, enabled) {
+      for (const button of card.querySelectorAll(".result-btn")) {
+        button.disabled = !enabled;
+      }
+    }
+
+    function downloadGeneratedFile(card, format) {
+      if (!card.dataset.fileId) {
+        setGlobalStatus("这条音频还没有生成完成");
+        return;
+      }
+      window.location.href = `/api/download/${card.dataset.fileId}/${format}`;
+    }
+
+    async function playAudioUrl(url, button, card, activeText = "播放中") {
+      stopCurrentAudio(true);
+      currentPreviewButton = button;
+      button.disabled = true;
+      const originalText = button.textContent;
+      button.textContent = activeText;
+      if (card) setCardStatus(card, activeText);
+
+      return new Promise((resolve, reject) => {
+        currentAudio = new Audio(url);
+        currentAudio.onended = () => {
+          resetPreviewButton(button);
+          button.textContent = originalText;
+          currentPreviewButton = null;
+          if (card) setCardStatus(card, "试听完成");
+          resolve();
+        };
+        currentAudio.onerror = () => {
+          resetPreviewButton(button);
+          button.textContent = originalText;
+          currentPreviewButton = null;
+          if (card) setCardStatus(card, "播放失败");
+          reject(new Error("播放失败"));
+        };
+        currentAudio.play().catch((error) => {
+          resetPreviewButton(button);
+          button.textContent = originalText;
+          currentPreviewButton = null;
+          reject(error);
+        });
+      });
+    }
+
+    async function playGeneratedCard(card, button) {
+      if (!card.dataset.fileId) {
+        setGlobalStatus("这条音频还没有生成完成");
+        return;
+      }
+      try {
+        await playAudioUrl(`/api/play/${card.dataset.fileId}`, button, card);
+      } catch (error) {
+        setGlobalStatus(error.message);
+      }
+    }
+
+    async function previewAllGenerated() {
+      if (!generatedFiles.length || isGenerating) return;
+      previewAllBtn.disabled = true;
+      downloadZipBtn.disabled = true;
+      try {
+        let index = 1;
+        for (const file of generatedFiles) {
+          if (!file.card || !document.body.contains(file.card)) continue;
+          setGlobalStatus(`正在试听 ${index}/${generatedFiles.length}`);
+          await playAudioUrl(file.play_url || `/api/play/${file.file_id}`, previewAllBtn, file.card, "试听全部中");
+          index += 1;
+        }
+        setGlobalStatus("全部试听完成");
+      } catch (error) {
+        setGlobalStatus(error.message);
+      } finally {
+        refreshBatchButtons();
+        previewAllBtn.textContent = "试听全部";
+      }
+    }
+    function downloadBlob(blob, fileName) {
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = fileName;
+      document.body.append(anchor);
+      anchor.click();
+      anchor.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 20000);
+    }
+
+    async function downloadZip() {
+      if (!generatedFiles.length) {
+        setGlobalStatus("还没有可下载的生成结果");
+        return;
+      }
+      const formats = selectedZipFormats();
+      const label = zipFormatLabel();
+      const zipName = `${sanitizeFilename(subFolderInput.value || "tts_batch")}_${zipFormatSuffix()}.zip`;
+      downloadZipBtn.disabled = true;
+      for (const input of zipFormatInputs) input.disabled = true;
+      setGlobalStatus(`正在打包 ${label} ZIP`);
+      try {
+        const response = await fetch("/api/download_zip", requestOptions({
+          file_ids: generatedFiles.map((file) => file.file_id),
+          zip_name: zipName,
+          formats
+        }));
+        if (!response.ok) {
+          let message = await response.text();
+          try { message = JSON.parse(message).detail || message; } catch (error) {}
+          throw new Error(message || `HTTP ${response.status}`);
+        }
+        const blob = await response.blob();
+        downloadBlob(blob, zipName);
+        setGlobalStatus(`${label} ZIP 已开始下载：${zipName}`);
+      } catch (error) {
+        setGlobalStatus(error.message);
+      } finally {
+        refreshBatchButtons();
+      }
+    }
+    async function openOutputFolder() {
+      const folderPath = getOutputPath();
+      if (!folderPath) { setGlobalStatus("请填写主输出路径"); return; }
+      openFolderBtn.disabled = true;
+      setGlobalStatus("正在打开目录");
+      try {
+        await postJson("/api/open_folder", { folder_path: folderPath });
+        setGlobalStatus(folderPath);
+      } catch (error) {
+        setGlobalStatus(error.message);
+      } finally {
+        openFolderBtn.disabled = false;
+      }
+    }
+
+    function collectItems() {
+      const items = [];
+      for (const card of cardsEl.querySelectorAll(".card")) {
+        const textarea = card.querySelector("textarea");
+        const text = textarea.value.trim();
+        if (text) items.push({ card, textarea, text });
+      }
+      return items;
+    }
+
+    async function generateAll() {
+      if (isGenerating) return;
+      const saveDir = getOutputPath();
+      if (!saveDir) { setGlobalStatus("请填写主输出路径"); return; }
+      const items = collectItems();
+      if (!items.length) { setGlobalStatus("没有可生成的文案"); return; }
+
+      isGenerating = true;
+      generatedFiles = [];
+      refreshBatchButtons();
+      for (const item of items) {
+        delete item.card.dataset.fileId;
+        delete item.card.dataset.playUrl;
+        setResultButtons(item.card, false);
+      }
+      stopCurrentAudio(true);
+      generateBtn.disabled = true;
+      addCardBtn.disabled = true;
+      openFolderBtn.disabled = true;
+      languageInput.disabled = true;
+      voiceInput.disabled = true;
+      generateBtn.textContent = "生成中";
+      progressEl.max = items.length;
+      progressEl.value = 0;
+      setGlobalStatus(`准备生成 ${items.length} 条`);
+
+      try {
+        let sequence = 1;
+        for (const item of items) {
+          item.card.style.background = "";
+          setCardStatus(item.card, "生成中");
+          const fileName = `${String(sequence).padStart(2, "0")}_${sanitizeFilename(item.text)}.mp3`;
+          const result = await postJson("/api/generate_save", { text: item.text, voice: voiceInput.value, rate: rateInput.value, pitch: pitchInput.value, save_dir: saveDir, file_name: fileName });
+          generatedFiles.push({ ...result, card: item.card });
+          item.card.dataset.fileId = result.file_id;
+          item.card.dataset.playUrl = result.play_url || `/api/play/${result.file_id}`;
+          setResultButtons(item.card, true);
+          refreshBatchButtons();
+          item.card.style.background = "var(--ok)";
+          setCardStatus(item.card, fileName);
+          progressEl.value = sequence;
+          setGlobalStatus(`已完成 ${sequence}/${items.length}`);
+          sequence += 1;
+        }
+        setGlobalStatus(`全部完成：${saveDir}`);
+      } catch (error) {
+        setGlobalStatus(error.message);
+      } finally {
+        isGenerating = false;
+        generateBtn.disabled = false;
+        addCardBtn.disabled = false;
+        openFolderBtn.disabled = false;
+        languageInput.disabled = false;
+        voiceInput.disabled = false;
+        generateBtn.textContent = "批量生成";
+        refreshBatchButtons();
+      }
+    }
+
+    loadSettings();
+    bindSettingPersistence();
+    languageInput.addEventListener("change", () => { localStorage.setItem(storageKeys.language, languageInput.value); populateVoices(); });
+    openFolderBtn.addEventListener("click", openOutputFolder);
+    previewAllBtn.addEventListener("click", previewAllGenerated);
+    downloadZipBtn.addEventListener("click", downloadZip);
+    addCardBtn.addEventListener("click", () => addCard());
+    generateBtn.addEventListener("click", generateAll);
+    addCard();
+    loadVoices();
+  </script>
+</body>
+</html>
