@@ -53,7 +53,7 @@ jobs:
           subject-path: ${{ runner.temp }}/ClipchampVoiceStudio.exe
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: ${{ runner.temp }}/ClipchampVoiceStudio.exe
           generate_release_notes: true
