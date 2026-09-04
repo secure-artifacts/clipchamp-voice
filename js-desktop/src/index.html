@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clipchamp Voice Studio</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark"><img class="brand-logo" src="assets/logo.svg" alt=""></div>
+        <div class="brand-copy">
+          <h1>Clipchamp Voice Studio</h1>
+          <p>夜色配音工坊</p>
+        </div>
+      </div>
+
+      <section class="panel stack">
+        <div class="panel-title">输出</div>
+        <label class="field">
+          <span>保存位置</span>
+          <input id="outputRoot" type="text" spellcheck="false">
+        </label>
+        <label class="field">
+          <span>任务文件夹</span>
+          <input id="taskName" type="text" spellcheck="false">
+        </label>
+        <div class="split-buttons">
+          <button id="chooseRoot" type="button">选择目录</button>
+          <button id="openFolder" type="button">打开目录</button>
+        </div>
+      </section>
+
+      <section class="panel stack">
+        <div class="panel-title">声音</div>
+        <label class="field">
+          <span>语言</span>
+          <select id="language"></select>
+        </label>
+        <label class="field">
+          <span>语音</span>
+          <select id="voice"></select>
+        </label>
+        <div class="two-cols">
+          <label class="field">
+            <span>速度</span>
+            <select id="rate">
+              <option value="-30%">-30%</option>
+              <option value="-20%">-20%</option>
+              <option value="-10%">-10%</option>
+              <option value="+0%">标准</option>
+              <option value="+10%">+10%</option>
+              <option value="+20%">+20%</option>
+              <option value="+30%">+30%</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>音调</span>
+            <select id="pitch">
+              <option value="-20Hz">-20Hz</option>
+              <option value="-10Hz">-10Hz</option>
+              <option value="+0Hz">标准</option>
+              <option value="+10Hz">+10Hz</option>
+              <option value="+20Hz">+20Hz</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section class="panel stack compact-panel">
+        <div class="panel-title">一键打包</div>
+        <div class="segmented" role="radiogroup" aria-label="一键打包格式">
+          <label><input type="radio" name="zipFormat" value="mp3" checked><span>MP3</span></label>
+          <label><input type="radio" name="zipFormat" value="mp4"><span>MP4</span></label>
+          <label><input type="radio" name="zipFormat" value="both"><span>全部</span></label>
+        </div>
+      </section>
+
+      <div class="status-panel">
+        <div id="status">Ready</div>
+        <div class="progress-track"><div id="progressFill"></div></div>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <header class="topbar">
+        <div>
+          <h2>文案列表</h2>
+          <p id="cardCount">0 条文案</p>
+        </div>
+        <div class="actions">
+          <button id="addCard" type="button">添加文案</button>
+          <button id="generateAll" class="primary" type="button">批量生成</button>
+          <button id="previewAll" type="button" disabled>试听全部</button>
+          <button id="createZip" type="button" disabled>打包 MP3 ZIP</button>
+        </div>
+      </header>
+
+      <section id="cards" class="cards" aria-live="polite"></section>
+    </main>
+  </div>
+
+  <script src="edge-tts.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>

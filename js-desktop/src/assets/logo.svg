@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Clipchamp Voice Studio logo">
+  <defs>
+    <linearGradient id="night" x1="28" y1="20" x2="232" y2="236" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#070A1A"/>
+      <stop offset=".56" stop-color="#122346"/>
+      <stop offset="1" stop-color="#184B56"/>
+    </linearGradient>
+    <linearGradient id="teal" x1="92" y1="113" x2="184" y2="225" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5EF3EA"/>
+      <stop offset="1" stop-color="#24949F"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="92" y1="58" x2="190" y2="217" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFE3A6"/>
+      <stop offset="1" stop-color="#C99035"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect x="8" y="8" width="240" height="240" rx="52" fill="url(#night)"/>
+  <path d="M56 206 205 54" stroke="#fff" stroke-opacity=".08" stroke-width="2"/>
+  <circle cx="82" cy="48" r="55" fill="#25849C" opacity=".14"/>
+  <path d="M181 40a25 25 0 1 0 22 37 28 28 0 0 1-22-37Z" fill="url(#gold)" filter="url(#glow)"/>
+  <g fill="#FFE8B5" opacity=".9">
+    <circle cx="66" cy="70" r="2.4"/><circle cx="210" cy="106" r="2"/><circle cx="54" cy="150" r="1.5"/><circle cx="201" cy="172" r="1.6"/><circle cx="118" cy="40" r="1.4"/>
+  </g>
+  <circle cx="128" cy="147" r="53" fill="#0E1931" opacity=".74"/>
+  <circle cx="128" cy="147" r="49" fill="#2AD3D0" opacity=".13"/>
+  <g filter="url(#glow)">
+    <rect x="91" y="142" width="13" height="52" rx="6.5" fill="url(#teal)"/>
+    <rect x="112" y="132" width="13" height="74" rx="6.5" fill="url(#gold)"/>
+    <rect x="133" y="113" width="14" height="112" rx="7" fill="url(#teal)"/>
+    <rect x="155" y="132" width="13" height="74" rx="6.5" fill="url(#gold)"/>
+    <rect x="176" y="142" width="13" height="52" rx="6.5" fill="url(#teal)"/>
+    <path d="M73 201h110" stroke="url(#gold)" stroke-width="6" stroke-linecap="round"/>
+    <path d="M92 219h72" stroke="url(#teal)" stroke-width="5" stroke-linecap="round" opacity=".62"/>
+  </g>
+  <rect x="9.5" y="9.5" width="237" height="237" rx="51" fill="none" stroke="#fff" stroke-opacity=".09"/>
+</svg>

@@ -1,18 +1,17 @@
-name: Build and Release
+name: Desktop CI
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 permissions:
-  id-token: write
-  contents: write
-  attestations: write
+  contents: read
 
 jobs:
-  build:
-    name: Build Clipchamp Voice Studio
+  js-desktop:
+    name: Check JavaScript desktop app
     runs-on: windows-latest
 
     defaults:
@@ -40,20 +39,3 @@ jobs:
 
       - name: Audit runtime dependencies
         run: npm audit --omit=dev --registry=https://registry.npmjs.org/
-
-      - name: Build portable Windows app
-        run: npm run build
-
-      - name: Copy release asset
-        run: Copy-Item -LiteralPath "dist\ClipchampVoiceStudio.exe" -Destination "$env:RUNNER_TEMP\ClipchampVoiceStudio.exe" -Force
-
-      - name: Attest Build Provenance
-        uses: actions/attest-build-provenance@v2
-        with:
-          subject-path: ${{ runner.temp }}/ClipchampVoiceStudio.exe
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: ${{ runner.temp }}/ClipchampVoiceStudio.exe
-          generate_release_notes: true

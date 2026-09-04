@@ -1,0 +1,52 @@
+{
+  "name": "clipchamp-voice-js",
+  "version": "1.0.0",
+  "description": "Local desktop TTS batch studio powered by JavaScript, Electron, Edge-TTS, and local FFmpeg conversion.",
+  "main": "src/main.js",
+  "private": true,
+  "author": "secure-artifacts",
+  "license": "GPL-3.0-or-later",
+  "scripts": {
+    "start": "electron .",
+    "check": "node --check src/main.js && node --check src/preload.js && node --check src/edge-tts.js && node --check src/renderer.js && node --check scripts/make_logo_assets.js",
+    "build": "electron-builder --win portable"
+  },
+  "devDependencies": {
+    "electron": "^38.1.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.secureartifacts.clipchampvoicejs",
+    "productName": "Clipchamp Voice Studio",
+    "asar": true,
+    "npmRebuild": false,
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "package.json",
+      "node_modules/ffmpeg-static/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "ClipchampVoiceStudio.exe",
+      "signExecutable": false,
+      "icon": "assets/icon.ico"
+    },
+    "asarUnpack": [
+      "node_modules/ffmpeg-static/**"
+    ]
+  },
+  "dependencies": {
+    "ffmpeg-static": "^5.3.0"
+  }
+}

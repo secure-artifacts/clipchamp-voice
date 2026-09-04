@@ -28,3 +28,9 @@ temp_preview.mp3
 extension/
 clipchamp-tts-extension.zip
 pack_extension.cmd
+node_modules/
+npm-debug.log*
+js-desktop/dist/
+
+ClipchampVoiceStudio.exe
+ClipchampVoiceJS.exe
