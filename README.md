@@ -71,7 +71,7 @@ ClipchampVoiceStudio.exe
 
 ## GitHub 发布流程
 
-推送到 `main` 会运行 Desktop CI 和 CodeQL。创建并推送 `v*` tag 会触发 Release workflow，在 GitHub 的 Windows runner 上构建 `ClipchampVoiceStudio.exe`，上传到 GitHub Release，并生成构建证明。
+推送到 `main` 会运行 Desktop CI，并由 GitHub CodeQL default setup 进行代码扫描。创建并推送 `v*` tag 会触发 Release workflow，在 GitHub 的 Windows runner 上构建 `ClipchampVoiceStudio.exe`，上传到 GitHub Release，并生成构建证明。
 
 ```powershell
 git tag -a v1.1.0 -m "Release version 1.1.0"
