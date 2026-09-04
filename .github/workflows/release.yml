@@ -48,7 +48,7 @@ jobs:
         run: Copy-Item -LiteralPath "dist\ClipchampVoiceStudio.exe" -Destination "$env:RUNNER_TEMP\ClipchampVoiceStudio.exe" -Force
 
       - name: Attest Build Provenance
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: ${{ runner.temp }}/ClipchampVoiceStudio.exe
 
