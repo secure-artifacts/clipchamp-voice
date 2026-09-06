@@ -1,6 +1,6 @@
 # Clipchamp Voice Studio
 
-当前入口是纯 JavaScript 桌面软件，不需要 Python 后端，也不需要云端部署。
+当前主入口是纯 JavaScript 桌面软件，不需要 Python 后端，也不需要云端部署。网页版也保留在仓库中，可用 `start_web.cmd` 单独启动。
 
 直接双击：
 
@@ -61,6 +61,16 @@ js-desktop\dist\ClipchampVoiceStudio.exe
 ClipchampVoiceStudio.exe
 ```
 
+## Edge-TTS 诊断
+
+如果软件或网页提示连接 Edge-TTS 失败，先运行：
+
+```powershell
+diagnose_edge.cmd
+```
+
+这个脚本会分别检查 Microsoft 语音列表、Python 网页后端和 JavaScript 桌面主进程连接。
+
 ## 安全来源
 
 - 依赖安装使用官方 npm registry：`https://registry.npmjs.org/`
@@ -74,8 +84,8 @@ ClipchampVoiceStudio.exe
 推送到 `main` 会运行 Desktop CI，并由 GitHub CodeQL default setup 进行代码扫描。创建并推送 `v*` tag 会触发 Release workflow，在 GitHub 的 Windows runner 上构建 `ClipchampVoiceStudio.exe`，上传到 GitHub Release，并生成构建证明。
 
 ```powershell
-git tag -a v1.1.0 -m "Release version 1.1.0"
-git push origin v1.1.0
+git tag -a v1.1.1 -m "Release version 1.1.1"
+git push origin v1.1.1
 ```
 
 发布产物：`ClipchampVoiceStudio.exe`

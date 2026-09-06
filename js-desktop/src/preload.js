@@ -8,4 +8,6 @@ contextBridge.exposeInMainWorld('desktop', {
   createZip: (payload) => ipcRenderer.invoke('zip:create', payload),
   showFile: (filePath) => ipcRenderer.invoke('file:show', filePath),
   openFile: (filePath) => ipcRenderer.invoke('file:open', filePath),
+  listVoices: () => ipcRenderer.invoke('tts:voices'),
+  synthesize: (payload) => ipcRenderer.invoke('tts:synthesize', payload),
 })

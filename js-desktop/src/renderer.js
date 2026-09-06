@@ -267,7 +267,7 @@ async function previewCard(card, textarea, button) {
     button.disabled = true
     button.textContent = '生成中'
     setCardStatus(card, '试听生成中')
-    const bytes = await window.EdgeTTS.synthesize(text.slice(0, 30), currentVoiceOptions(), {
+    const bytes = await synthesizeText(text.slice(0, 30), currentVoiceOptions(), {
       signal: previewAbort.signal,
       timeoutMs: 45000,
     })
@@ -284,6 +284,14 @@ async function previewCard(card, textarea, button) {
   }
 }
 
+async function synthesizeText(text, options, control = {}) {
+  const data = await window.desktop.synthesize({
+    text,
+    options,
+    timeoutMs: control.timeoutMs || 90000,
+  })
+  return data instanceof ArrayBuffer ? new Uint8Array(data) : new Uint8Array(data || [])
+}
 function currentVoiceOptions() {
   return {
     voice: el.voice.value || 'en-US-AvaMultilingualNeural',
@@ -334,7 +342,7 @@ async function generateAll() {
       setStatus(`正在生成 ${index}/${items.length}`)
       setCardStatus(item.card, '生成中')
 
-      const bytes = await window.EdgeTTS.synthesize(item.text, currentVoiceOptions(), { timeoutMs: 90000 })
+      const bytes = await synthesizeText(item.text, currentVoiceOptions(), { timeoutMs: 90000 })
       const saveResult = await window.desktop.saveAudio({
         baseFolder: el.outputRoot.value,
         taskName: fullTaskName(),
@@ -500,7 +508,7 @@ function populateVoices() {
 async function loadVoices() {
   setStatus('正在加载语音列表')
   try {
-    indexVoices(await window.EdgeTTS.listVoices())
+    indexVoices(await window.desktop.listVoices())
     setStatus('语音列表已加载')
   } catch (error) {
     indexVoices(fallbackVoices)

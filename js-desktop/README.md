@@ -1,6 +1,6 @@
 # Clipchamp Voice Studio
 
-精致夜色 JavaScript 桌面版。它使用 Electron 打开本地软件窗口，TTS 逻辑直接在前端 JavaScript 中通过 Edge-TTS WebSocket 完成；保存文件、打开目录、MP4 转码和 ZIP 打包由 Electron 主进程在本机完成。
+精致夜色 JavaScript 桌面版。它使用 Electron 打开本地软件窗口，TTS 逻辑由 Electron 主进程通过 Node WebSocket 连接 Edge-TTS 完成；保存文件、打开目录、MP4 转码和 ZIP 打包由 Electron 主进程在本机完成。
 
 ## 直接使用
 
@@ -27,6 +27,10 @@ start.cmd
 cd js-desktop
 build.cmd
 ```
+
+## 连接方式
+
+软件不会再从 renderer 页面直接打开浏览器 WebSocket；页面通过 IPC 调用 Electron 主进程，由主进程发送带 Edge headers 的 WebSocket 请求。这样可以避开 Chromium 页面 WebSocket 不能自定义握手头导致的 403。
 
 ## 说明
 

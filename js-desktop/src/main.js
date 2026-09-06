@@ -4,6 +4,7 @@ const path = require('node:path')
 const fs = require('node:fs/promises')
 const os = require('node:os')
 const ffmpegPath = require('ffmpeg-static')
+const edgeTts = require('./edge-tts-node')
 const ffmpegBinary = ffmpegPath ? ffmpegPath.replace('app.asar', 'app.asar.unpacked') : ''
 
 const APP_ID = 'com.secureartifacts.clipchampvoicejs'
@@ -209,6 +210,14 @@ function createWindow() {
   win.loadFile(path.join(__dirname, 'index.html'))
 }
 
+ipcMain.handle('tts:voices', async () => edgeTts.listVoices())
+
+ipcMain.handle('tts:synthesize', async (_event, payload) => {
+  const audio = await edgeTts.synthesize(payload?.text || '', payload?.options || {}, {
+    timeoutMs: payload?.timeoutMs || 90000,
+  })
+  return audio.buffer.slice(audio.byteOffset, audio.byteOffset + audio.byteLength)
+})
 ipcMain.handle('app:default-output-root', () => defaultOutputRoot())
 
 ipcMain.handle('dialog:choose-output-root', async () => {
